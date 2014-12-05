@@ -1,0 +1,286 @@
+﻿<html>
+<!--Copyright (c) 2010-2014 Peter Rimshnick. See http://www.allsmallworld.com/license.html for copying permission.-->
+<body>
+	<h>Welcome to <b> all small world! </b></h>
+	<p>This simple app identifies friendships among your friends which
+		may be surprising to you. For example, say you know Rob from work, and
+		Beth through elementary school. It'd be surprising to learn Rob is
+		friends with Beth, wouldn't it?</p>
+
+	<p>This app might identify a lot of false positives, such as
+		friendships that would otherwise be surprising, except that you caused
+		them! (e.g. you introduced Rob to Beth). But hopefully it will find
+		some genuine surprises too. The good news is this happens more than
+		you think. It is a small world, after all.</p>
+
+	<p>
+		<font size="1.5"> Notes: 1.The app will usually deliver more
+			interesting results the more friends you have. However, it will also
+			take longer to run. Please be patient - you'll be glad you did!
+			2.This app runs fastest in newer browsers. Enjoy! 3. If you like this
+			app, tell your friends about it on Facebook using the @All Small World tag </font>
+	</p>
+
+	<p>
+	<div id="loadProgress"></div>
+	<div id="analysisProgress"></div>
+	<div id="options">
+		Display top <select id="numResults" disabled="disabled"
+			onchange="displayResults(Number(this.value))">
+			<option>10</option>
+			<option selected="selected">20</option>
+			<option>50</option>
+			<option>100</option>
+		</select> results
+	</div>
+	<div id="result"></div>
+	<div id="fb-root"></div>
+	</p>
+	
+	<script type="text/javascript">
+﻿  ﻿  
+﻿  ﻿  var loadDiv = document.getElementById('loadProgress');
+﻿  ﻿  var analysisDiv = document.getElementById('analysisProgress');
+﻿  ﻿  var resultDiv = document.getElementById('result');
+﻿  ﻿  var numDiv = document.getElementById('numResults');
+﻿  ﻿  var myFriends;
+﻿  ﻿  var friendPairs = new Array();
+﻿  ﻿  
+﻿  ﻿  
+﻿  ﻿  window.fbAsyncInit = function() {
+﻿  ﻿  ﻿  FB.init({
+﻿  ﻿  ﻿  ﻿  appId : '143281132434848', // App ID
+﻿  ﻿  ﻿  ﻿  channelUrl : '//WWW.allsmallworld.COM/channel.html', // Channel File
+﻿  ﻿  ﻿  ﻿  status : true, // check login status
+﻿  ﻿  ﻿  ﻿  cookie : true, // enable cookies to allow the server to access the session
+﻿  ﻿  ﻿  ﻿  xfbml : true
+﻿  ﻿  ﻿  // parse XFBML
+﻿  ﻿  ﻿  });
+
+﻿  ﻿  ﻿  FB.getLoginStatus(function(response) {
+﻿  ﻿  ﻿  ﻿  if (response.status === 'connected') {
+﻿  ﻿  ﻿  ﻿  ﻿  // the user is logged in and connected to your
+﻿  ﻿  ﻿  ﻿  ﻿  // app, and response.authResponse supplies
+﻿  ﻿  ﻿  ﻿  ﻿  // the user's ID, a valid access token, a signed
+﻿  ﻿  ﻿  ﻿  ﻿  // request, and the time the access token 
+﻿  ﻿  ﻿  ﻿  ﻿  // and signed request each expire
+﻿  ﻿  ﻿  ﻿  ﻿  getData(response);
+﻿  ﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  else {
+﻿  ﻿  ﻿  ﻿  ﻿  login();
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  });
+﻿  ﻿  };
+
+﻿  ﻿  // Load the SDK Asynchronously
+﻿  ﻿  (function(d) {
+﻿  ﻿  ﻿  var js, id = 'facebook-jssdk';
+﻿  ﻿  ﻿  if (d.getElementById(id)) {
+﻿  ﻿  ﻿  ﻿  return;
+﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  js = d.createElement('script');
+﻿  ﻿  ﻿  js.id = id;
+﻿  ﻿  ﻿  js.async = true;
+﻿  ﻿  ﻿  js.src = "//connect.facebook.net/en_US/all.js";
+﻿  ﻿  ﻿  d.getElementsByTagName('head')[0].appendChild(js);
+﻿  ﻿  }(document));﻿  ﻿  
+﻿  
+﻿  function getData(response) {
+﻿  ﻿  FB.api('/me', function(response) {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  //alert('Your name is ' + response.name);﻿  ﻿  ﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  ﻿  });
+﻿  ﻿  ﻿  ﻿  ﻿  var uid = response.authResponse.userID;
+﻿  ﻿  ﻿  ﻿  ﻿  var accessToken = response.authResponse.accessToken;
+﻿  ﻿  ﻿  ﻿  ﻿  FB.api('/me/friends', function(response) {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  myFriends = response.data
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  var numFriends = myFriends.length;
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  var completions = 0;
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  for (var i = 0; i < myFriends.length; i++){
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  myFriends[i].friends = new Array();
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  (function(index) {﻿  
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  FB.api('/me/mutualfriends/' + myFriends[i].id, function(
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  ﻿  ﻿  response) {﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  myFriends[index].friends = response.data;
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  completions++; ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  ﻿  var percentComplete = (completions/numFriends)*100;
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  loadDiv.innerHTML ="Loading: " + percentComplete.toFixed(0)+"% Complete";
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  ﻿  if (completions == myFriends.length) {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  ﻿  ﻿  loadDiv.innerHTML = "Loading Complete. Analyzing friend network."
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  ﻿  ﻿  var result = analyzeData();
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿   ﻿  ﻿  });
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  })(i);
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  ﻿  });﻿  
+﻿  ﻿  
+﻿  }
+﻿  
+﻿  function extractId(pageString){
+﻿  ﻿  var position1 = pageString.indexOf("mutualfriends");
+﻿  ﻿  var position2 = pageString.indexOf("?");
+﻿  ﻿  var startpos = position1 + 14;
+﻿  ﻿  return pageString.substring(startpos,position2);
+﻿  ﻿  
+﻿  }
+﻿  
+﻿  function getIndex(id){
+﻿  ﻿  for (var i = 0; i < myFriends.length; i++){
+﻿  ﻿  ﻿  if (Number(myFriends[i].id)==id) return i;
+﻿  ﻿  }
+﻿  ﻿  alert("id not found: " + id);
+﻿  ﻿  return -1;
+﻿  }
+﻿  
+﻿  
+﻿  ﻿  RepeatingOperation = function(op, yieldEveryIteration) {
+﻿  ﻿  ﻿  var count = 0;
+﻿  ﻿  ﻿  var instance = this;
+﻿  ﻿  ﻿  this.step = function(args) {
+﻿  ﻿  ﻿  ﻿  if (++count >= yieldEveryIteration) {
+﻿  ﻿  ﻿  ﻿  ﻿  count = 0;
+﻿  ﻿  ﻿  ﻿  ﻿  setTimeout(function() {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  op(args);
+﻿  ﻿  ﻿  ﻿  ﻿  }, 1, [])
+﻿  ﻿  ﻿  ﻿  ﻿  return;
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  op(args);
+﻿  ﻿  ﻿  };
+﻿  ﻿  };
+
+﻿  ﻿  function analyzeData() {
+﻿  ﻿  ﻿  var bestValue = 0;
+﻿  ﻿  ﻿  var bestPair;
+﻿  ﻿  ﻿  var containsPairs = 0;
+﻿  ﻿  ﻿  var i = 0;
+﻿  ﻿  ﻿  var j = 0;
+﻿  ﻿  ﻿  var ro = new RepeatingOperation(function() {﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  var percentComplete = ((i + (j / myFriends[i].friends.length)) / myFriends.length) * 100;
+﻿  ﻿  ﻿  ﻿  analysisDiv.innerHTML = "Analyzing: "
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  + percentComplete.toFixed(0) + "% Complete";
+﻿  ﻿  ﻿  ﻿  if (containsPair(i, j)) {
+﻿  ﻿  ﻿  ﻿  ﻿  containsPairs++;﻿  ﻿  ﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  else {
+﻿  ﻿  ﻿  ﻿  ﻿  var newPair = new Object();
+﻿  ﻿  ﻿  ﻿  ﻿  friendPairs.push(newPair); 
+﻿  ﻿  ﻿  ﻿  ﻿  newPair.friend1 = myFriends[i];
+﻿  ﻿  ﻿  ﻿  ﻿  newPair.friend2 = myFriends[i].friends[j];
+﻿  ﻿  ﻿  ﻿  ﻿  newPair.value = analyzePair(newPair);
+﻿  ﻿  ﻿  ﻿  ﻿  if (newPair.value > bestValue) {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  bestValue = newPair.value;
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  bestPair = newPair;
+﻿  ﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  if (++j < myFriends[i].friends.length) {
+﻿  ﻿  ﻿  ﻿  ﻿  ro.step();
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  else if (++i < myFriends.length) {
+﻿  ﻿  ﻿  ﻿  ﻿  j = 0;
+﻿  ﻿  ﻿  ﻿  ﻿  while (myFriends[i].friends.length ==0 && i < myFriends.length) {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  i++;
+﻿  ﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  ﻿  if (i<myFriends.length) ro.step();
+﻿  ﻿  ﻿  ﻿  ﻿  else printResults();
+﻿  ﻿  ﻿  ﻿  }﻿  ﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  ﻿  else printResults();
+﻿  ﻿  ﻿  },100);
+﻿  ﻿  ﻿  while (myFriends[i].friends.length ==0 && i < myFriends.length) {
+﻿  ﻿  ﻿  ﻿  i++;
+﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  if (i>=myFriends.length) alert ("No possibilities for analysis. Exiting.");
+﻿  ﻿  ﻿  else ro.step();﻿  ﻿  ﻿  
+﻿  ﻿  }﻿  ﻿  
+﻿  ﻿  
+﻿  ﻿  function printResults() {
+﻿  ﻿  ﻿  friendPairs.sort(function(a, b) {
+﻿  ﻿  ﻿  ﻿  return b.value - a.value;
+﻿  ﻿  ﻿  })
+﻿  ﻿  ﻿  numDiv.removeAttribute("disabled");
+﻿  ﻿  ﻿  return displayResults(20);
+﻿  ﻿  }
+﻿  ﻿  
+﻿  ﻿  function displayResults(n){
+﻿  ﻿  ﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  resultDiv.innerHTML = "<br><b> Top " + n
+﻿  ﻿  ﻿  ﻿  ﻿  + " Most (Possibly) Surprising Friendships: </b></br>"
+﻿  ﻿  ﻿  ﻿  ﻿  +"<font size = 1.5> (Click on names to open profile pages in new window) </font></br></br>";
+﻿  ﻿  ﻿  for ( var i = 0; i < n; i++) {
+﻿  ﻿  ﻿  ﻿  resultDiv.innerHTML += "<a href=\"http://www.facebook.com/" 
+﻿  ﻿  ﻿  ﻿  ﻿  + friendPairs[i].friend1.id +"\" target=\"_blank\">" 
+﻿  ﻿  ﻿  ﻿  ﻿  + friendPairs[i].friend1.name;
+﻿  ﻿  ﻿  ﻿  resultDiv.innerHTML += "</a> and <a href=\"http://www.facebook.com/" 
+﻿  ﻿  ﻿  ﻿  ﻿  + friendPairs[i].friend2.id +"\" target=\"_blank\">"
+﻿  ﻿  ﻿  ﻿  ﻿  + friendPairs[i].friend2.name;
+﻿  ﻿  ﻿  ﻿  resultDiv.innerHTML += ".</a> <i> Surprise factor: "
+﻿  ﻿  ﻿  ﻿  ﻿  + friendPairs[i].value.toFixed(2) + "</i></br>";
+﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  return true;
+﻿  ﻿  }
+
+﻿  ﻿  function analyzePair(newPair) {
+﻿  ﻿  ﻿  var friend1 = newPair.friend1;
+﻿  ﻿  ﻿  var friend2 = newPair.friend2;
+﻿  ﻿  ﻿  var theirMutualFriends = 0;
+﻿  ﻿  ﻿  var friends1 = myFriends[getIndex(friend1.id)].friends;
+﻿  ﻿  ﻿  var friends2 = myFriends[getIndex(friend2.id)].friends;
+
+﻿  ﻿  ﻿  for ( var i = 0; i < friends1.length; i++) {
+﻿  ﻿  ﻿  ﻿  if (matchID(friends2, 0, friends2.length - 1, friends1[i].id)) {
+﻿  ﻿  ﻿  ﻿  ﻿  theirMutualFriends++;
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  }
+
+﻿  ﻿  ﻿  newPair.mutualFriendCount = theirMutualFriends;
+﻿  ﻿  ﻿  var score = (friends1.length + 1) * (friends2.length + 1)
+﻿  ﻿  ﻿  ﻿  ﻿  / Math.pow((theirMutualFriends + 1), 2);
+﻿  ﻿  ﻿  return score;
+
+﻿  ﻿  }
+
+﻿  ﻿  function containsPair(i, j) {
+﻿  ﻿  ﻿  for ( var k = 0; k < friendPairs.length; k++) {
+﻿  ﻿  ﻿  ﻿  var currPair = friendPairs[k];
+﻿  ﻿  ﻿  ﻿  if ((Number(currPair.friend1.id) == Number(myFriends[i].id))
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  && (Number(currPair.friend2.id) == Number(myFriends[i].friends[j].id))) {
+﻿  ﻿  ﻿  ﻿  ﻿  return true;
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  if ((Number(currPair.friend2.id) == Number(myFriends[i].id))
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  && (Number(currPair.friend1.id) == Number(myFriends[i].friends[j].id))) {
+﻿  ﻿  ﻿  ﻿  ﻿  return true;
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  return false;
+﻿  ﻿  }
+
+﻿  ﻿  function matchID(array, firstInd, lastInd, targetID) {
+﻿  ﻿  ﻿  if (firstInd > lastInd)
+﻿  ﻿  ﻿  ﻿  return false;
+﻿  ﻿  ﻿  if (firstInd == lastInd) {
+﻿  ﻿  ﻿  ﻿  return Number(array[lastInd].id) == Number(targetID);
+﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  var midPoint = (firstInd + lastInd) / 2;
+﻿  ﻿  ﻿  if (Number(array[Math.ceil(midPoint)].id) == Number(targetID)) {
+﻿  ﻿  ﻿  ﻿  return true;
+﻿  ﻿  ﻿  } else if (Number(array[Math.ceil(midPoint)].id) > Number(targetID)) {
+﻿  ﻿  ﻿  ﻿  return matchID(array, firstInd, Math.floor(midPoint), targetID);
+﻿  ﻿  ﻿  } else
+﻿  ﻿  ﻿  ﻿  return matchID(array, Math.ceil(midPoint), lastInd, targetID);
+﻿  ﻿  }
+﻿  ﻿  
+﻿  ﻿  function login() {
+﻿  ﻿  ﻿  FB.login(function(response) {
+﻿  ﻿  ﻿  ﻿  if (response.authResponse) {
+﻿  ﻿  ﻿  ﻿  ﻿  if (response.status === 'connected') {
+﻿  ﻿  ﻿  ﻿  ﻿  ﻿  getData(response);
+﻿  ﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  ﻿  } else {
+﻿  ﻿  ﻿  ﻿  ﻿  alert("Permission not granted by user.");
+﻿  ﻿  ﻿  ﻿  }
+﻿  ﻿  ﻿  });
+﻿  ﻿  }
+﻿  </script>
+
+</body>
+</html>
