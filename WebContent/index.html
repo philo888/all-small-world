@@ -154,13 +154,9 @@
 ﻿  ﻿  ﻿  var ro = new RepeatingOperation(function() {﻿  ﻿  ﻿  ﻿  
 ﻿  ﻿  ﻿  ﻿  var percentComplete = ((i + (j / myFriends[i].friends.length)) / myFriends.length) * 100;
 ﻿  ﻿  ﻿  ﻿  updatePercentAnalyzed(percentComplete);
-﻿  ﻿  ﻿  ﻿  if (containsPair(myFriends[i].id, myFriends[i].friends[j].id)) {
-﻿  ﻿  ﻿  ﻿  ﻿  containsPairs++;﻿  ﻿  ﻿  ﻿  ﻿  ﻿  
-﻿  ﻿  ﻿  ﻿  }
-﻿  ﻿  ﻿  ﻿  else {
+﻿  ﻿  ﻿  ﻿  if (myFriends[i].id < myFriends[i].friends[j].id) { //only want to do it once
 ﻿  ﻿  ﻿  ﻿  ﻿  var newPair = new Object();
 ﻿  ﻿  ﻿  ﻿  ﻿  friendPairs.push(newPair);
-		  friendPairs[getPairKey(myFriends[i].id, myFriends[i].friends[j].id)] = newPair;
 ﻿  ﻿  ﻿  ﻿  ﻿  newPair.friend1 = myFriends[i];
 ﻿  ﻿  ﻿  ﻿  ﻿  newPair.friend2 = myFriends[i].friends[j];
 ﻿  ﻿  ﻿  ﻿  ﻿  newPair.value = analyzePair(newPair);
@@ -241,16 +237,6 @@
 ﻿  ﻿  ﻿  return score;
 
 ﻿  ﻿  }
-
-	function containsPair(id1,id2){
-		if (friendPairs.hasOwnProperty(getPairKey(id1,id2))) return true;
-		return false;
-	}
-	
-	function getPairKey(id1,id2){
-		if (id1<id2) return id1 + "-" +id2;
-		else return id2 + "-" +id1;
-	}
 
 ﻿  ﻿  function matchID(array, firstInd, lastInd, targetID) {
 ﻿  ﻿  ﻿  if (firstInd > lastInd)
