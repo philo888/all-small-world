@@ -116,14 +116,6 @@
 ﻿  ﻿  
 ﻿  }
 ﻿  
-﻿  function extractId(pageString){
-﻿  ﻿  var position1 = pageString.indexOf("mutualfriends");
-﻿  ﻿  var position2 = pageString.indexOf("?");
-﻿  ﻿  var startpos = position1 + 14;
-﻿  ﻿  return pageString.substring(startpos,position2);
-﻿  ﻿  
-﻿  }
-﻿  
 ﻿  function getIndex(id){
 ﻿  ﻿  for (var i = 0; i < myFriends.length; i++){
 ﻿  ﻿  ﻿  if (Number(myFriends[i].id)==id) return i;
@@ -131,6 +123,11 @@
 ﻿  ﻿  alert("id not found: " + id);
 ﻿  ﻿  return -1;
 ﻿  }
+
+  function updatePercentAnalyzed(val) {
+	  analysisDiv.innerHTML = "Analyzing: "
+		  ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  + val.toFixed(0) + "% Complete";
+  }
 ﻿  
 ﻿  
 ﻿  ﻿  RepeatingOperation = function(op, yieldEveryIteration) {
@@ -156,14 +153,14 @@
 ﻿  ﻿  ﻿  var j = 0;
 ﻿  ﻿  ﻿  var ro = new RepeatingOperation(function() {﻿  ﻿  ﻿  ﻿  
 ﻿  ﻿  ﻿  ﻿  var percentComplete = ((i + (j / myFriends[i].friends.length)) / myFriends.length) * 100;
-﻿  ﻿  ﻿  ﻿  analysisDiv.innerHTML = "Analyzing: "
-﻿  ﻿  ﻿  ﻿  ﻿  ﻿  + percentComplete.toFixed(0) + "% Complete";
-﻿  ﻿  ﻿  ﻿  if (containsPair(i, j)) {
+﻿  ﻿  ﻿  ﻿  updatePercentAnalyzed(percentComplete);
+﻿  ﻿  ﻿  ﻿  if (containsPair(myFriends[i].id, myFriends[i].friends[j].id)) {
 ﻿  ﻿  ﻿  ﻿  ﻿  containsPairs++;﻿  ﻿  ﻿  ﻿  ﻿  ﻿  
 ﻿  ﻿  ﻿  ﻿  }
 ﻿  ﻿  ﻿  ﻿  else {
 ﻿  ﻿  ﻿  ﻿  ﻿  var newPair = new Object();
-﻿  ﻿  ﻿  ﻿  ﻿  friendPairs.push(newPair); 
+﻿  ﻿  ﻿  ﻿  ﻿  friendPairs.push(newPair);
+		  friendPairs[getPairKey(myFriends[i].id, myFriends[i].friends[j].id)] = newPair;
 ﻿  ﻿  ﻿  ﻿  ﻿  newPair.friend1 = myFriends[i];
 ﻿  ﻿  ﻿  ﻿  ﻿  newPair.friend2 = myFriends[i].friends[j];
 ﻿  ﻿  ﻿  ﻿  ﻿  newPair.value = analyzePair(newPair);
@@ -181,15 +178,21 @@
 ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  i++;
 ﻿  ﻿  ﻿  ﻿  ﻿  }
 ﻿  ﻿  ﻿  ﻿  ﻿  if (i<myFriends.length) ro.step();
-﻿  ﻿  ﻿  ﻿  ﻿  else printResults();
+﻿  ﻿  ﻿  ﻿  ﻿  else {
+			updatePercentAnalyzed((i/myFriends.length) * 100);
+			printResults();
+		  }
 ﻿  ﻿  ﻿  ﻿  }﻿  ﻿  ﻿  ﻿  ﻿  
-﻿  ﻿  ﻿  ﻿  else printResults();
+﻿  ﻿  ﻿  ﻿  else {
+			updatePercentAnalyzed((i/myFriends.length) * 100);
+			printResults();
+		}	
 ﻿  ﻿  ﻿  },100);
 ﻿  ﻿  ﻿  while (myFriends[i].friends.length ==0 && i < myFriends.length) {
 ﻿  ﻿  ﻿  ﻿  i++;
 ﻿  ﻿  ﻿  }
 ﻿  ﻿  ﻿  if (i>=myFriends.length) alert ("No possibilities for analysis. Exiting.");
-﻿  ﻿  ﻿  else ro.step();﻿  ﻿  ﻿  
+﻿  ﻿  ﻿  else ro.step();﻿		 
 ﻿  ﻿  }﻿  ﻿  
 ﻿  ﻿  
 ﻿  ﻿  function printResults() {
@@ -239,20 +242,15 @@
 
 ﻿  ﻿  }
 
-﻿  ﻿  function containsPair(i, j) {
-﻿  ﻿  ﻿  for ( var k = 0; k < friendPairs.length; k++) {
-﻿  ﻿  ﻿  ﻿  var currPair = friendPairs[k];
-﻿  ﻿  ﻿  ﻿  if ((Number(currPair.friend1.id) == Number(myFriends[i].id))
-﻿  ﻿  ﻿  ﻿  ﻿  ﻿  && (Number(currPair.friend2.id) == Number(myFriends[i].friends[j].id))) {
-﻿  ﻿  ﻿  ﻿  ﻿  return true;
-﻿  ﻿  ﻿  ﻿  }
-﻿  ﻿  ﻿  ﻿  if ((Number(currPair.friend2.id) == Number(myFriends[i].id))
-﻿  ﻿  ﻿  ﻿  ﻿  ﻿  && (Number(currPair.friend1.id) == Number(myFriends[i].friends[j].id))) {
-﻿  ﻿  ﻿  ﻿  ﻿  return true;
-﻿  ﻿  ﻿  ﻿  }
-﻿  ﻿  ﻿  }
-﻿  ﻿  ﻿  return false;
-﻿  ﻿  }
+	function containsPair(id1,id2){
+		if (friendPairs.hasOwnProperty(getPairKey(id1,id2))) return true;
+		return false;
+	}
+	
+	function getPairKey(id1,id2){
+		if (id1<id2) return id1 + "-" +id2;
+		else return id2 + "-" +id1;
+	}
 
 ﻿  ﻿  function matchID(array, firstInd, lastInd, targetID) {
 ﻿  ﻿  ﻿  if (firstInd > lastInd)
