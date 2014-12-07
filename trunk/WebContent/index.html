@@ -1,6 +1,20 @@
  <html>
 <!--Copyright (c) 2010-2014 Peter Rimshnick. See http://www.allsmallworld.com/license.html for copying permission.-->
 <body>
+
+	<div id="fb-root"></div>
+	<script>
+		(function(d, s, id) {
+			var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id))
+				return;
+			js = d.createElement(s);
+			js.id = id;
+			js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=143281132434848&version=v2.0";
+			fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+	</script>
+
 	<h>Welcome to <b> all small world! </b></h>
 	<p>This simple app identifies friendships among your friends which
 		may be surprising to you. For example, say you know Rob from work, and
@@ -35,6 +49,7 @@
 	</div>
 	<div id="result"></div>
 	<div id="fb-root"></div>
+	<div class="fb-like" data-href="http://www.allsmallworld.com" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
 	</p>
 	
 	<script type="text/javascript">
@@ -116,19 +131,21 @@
 		
 	}
 	
-	function getIndex(id){
-		for (var i = 0; i < myFriends.length; i++){
-			if (Number(myFriends[i].id)==id) return i;
+	
+		function getIndex(id) {
+			for (var i = 0; i < myFriends.length; i++) {
+				if (Number(myFriends[i].id) == id)
+					return i;
+			}
+			alert("id not found: " + id);
+			return -1;
 		}
-		alert("id not found: " + id);
-		return -1;
-	}
 
-  function updatePercentAnalyzed(val) {
-	  analysisDiv.innerHTML = "Analyzing: " + val.toFixed(0) + "% Complete";
-  }
-	
-	
+		function updatePercentAnalyzed(val) {
+			analysisDiv.innerHTML = "Analyzing: " + val.toFixed(0)
+					+ "% Complete";
+		}
+
 		RepeatingOperation = function(op, yieldEveryIteration) {
 			var count = 0;
 			var instance = this;
@@ -150,46 +167,49 @@
 			var containsPairs = 0;
 			var i = 0;
 			var j = 0;
-			var ro = new RepeatingOperation(function() { 
-				var percentComplete = ((i + (j / myFriends[i].friends.length)) / myFriends.length) * 100;
-				updatePercentAnalyzed(percentComplete);
-				if (myFriends[i].id < myFriends[i].friends[j].id) { //only want to do it once
-					var newPair = new Object();
-					friendPairs.push(newPair);
-					newPair.friend1 = myFriends[i];
-					newPair.friend2 = myFriends[i].friends[j];
-					newPair.value = analyzePair(newPair);
-					if (newPair.value > bestValue) {
-						bestValue = newPair.value;
-						bestPair = newPair;
-					}
-				}
-				if (++j < myFriends[i].friends.length) {
-					ro.step();
-				}
-				else if (++i < myFriends.length) {
-					j = 0;
-					while (i < myFriends.length && myFriends[i].friends.length == 0) {
-						i++;
-					}
-					if (i<myFriends.length) ro.step();
-					else {
-			updatePercentAnalyzed((i/myFriends.length)*100);
-			printResults();
-		  }
-				}					
-				else {
-			updatePercentAnalyzed((i/myFriends.length) * 100);
-			printResults();
-		}	
-			},100);
+			var ro = new RepeatingOperation(
+					function() {
+						var percentComplete = ((i + (j / myFriends[i].friends.length)) / myFriends.length) * 100;
+						updatePercentAnalyzed(percentComplete);
+						if (myFriends[i].id < myFriends[i].friends[j].id) { //only want to do it once
+							var newPair = new Object();
+							friendPairs.push(newPair);
+							newPair.friend1 = myFriends[i];
+							newPair.friend2 = myFriends[i].friends[j];
+							newPair.value = analyzePair(newPair);
+							if (newPair.value > bestValue) {
+								bestValue = newPair.value;
+								bestPair = newPair;
+							}
+						}
+						if (++j < myFriends[i].friends.length) {
+							ro.step();
+						} else if (++i < myFriends.length) {
+							j = 0;
+							while (i < myFriends.length
+									&& myFriends[i].friends.length == 0) {
+								i++;
+							}
+							if (i < myFriends.length)
+								ro.step();
+							else {
+								updatePercentAnalyzed((i / myFriends.length) * 100);
+								printResults();
+							}
+						} else {
+							updatePercentAnalyzed((i / myFriends.length) * 100);
+							printResults();
+						}
+					}, 100);
 			while (i < myFriends.length && myFriends[i].friends.length == 0) {
 				i++;
 			}
-			if (i >= myFriends.length) alert ("No possibilities for analysis. Exiting.");
-			else ro.step();	 	 
-		}		
-		
+			if (i >= myFriends.length)
+				alert("No possibilities for analysis. Exiting.");
+			else
+				ro.step();
+		}
+
 		function printResults() {
 			friendPairs.sort(function(a, b) {
 				return b.value - a.value;
@@ -197,23 +217,24 @@
 			numDiv.removeAttribute("disabled");
 			return displayResults(20);
 		}
-		
-		function displayResults(n){
-					
-			resultDiv.innerHTML = "<br><b> Top " + n
+
+		function displayResults(n) {
+
+			resultDiv.innerHTML = "<br><b> Top "
+					+ n
 					+ " Most (Possibly) Surprising Friendships: </b></br>"
-					+"<font size = 1.5> (Click on names to open profile pages in new window) </font></br></br>";
-			for ( var i = 0; i < n; i++) {
+					+ "<font size = 1.5> (Click on names to open profile pages in new window) </font></br></br>";
+			for (var i = 0; i < n; i++) {
 				resultDiv.innerHTML += "<a href=\"http://www.facebook.com/" 
-					+ friendPairs[i].friend1.id +"\" target=\"_blank\">" 
-					+ friendPairs[i].friend1.name;
+					+ friendPairs[i].friend1.id +"\" target=\"_blank\">"
+						+ friendPairs[i].friend1.name;
 				resultDiv.innerHTML += "</a> and <a href=\"http://www.facebook.com/" 
 					+ friendPairs[i].friend2.id +"\" target=\"_blank\">"
-					+ friendPairs[i].friend2.name;
+						+ friendPairs[i].friend2.name;
 				resultDiv.innerHTML += ".</a> <i> Surprise factor: "
-					+ friendPairs[i].value.toFixed(2) + "</i></br>";
+						+ friendPairs[i].value.toFixed(2) + "</i></br>";
 			}
-			
+
 			return true;
 		}
 
@@ -224,7 +245,7 @@
 			var friends1 = myFriends[getIndex(friend1.id)].friends;
 			var friends2 = myFriends[getIndex(friend2.id)].friends;
 
-			for ( var i = 0; i < friends1.length; i++) {
+			for (var i = 0; i < friends1.length; i++) {
 				if (matchID(friends2, 0, friends2.length - 1, friends1[i].id)) {
 					theirMutualFriends++;
 				}
@@ -251,7 +272,7 @@
 			} else
 				return matchID(array, Math.ceil(midPoint), lastInd, targetID);
 		}
-		
+
 		function login() {
 			FB.login(function(response) {
 				if (response.authResponse) {
