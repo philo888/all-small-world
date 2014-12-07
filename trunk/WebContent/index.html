@@ -104,7 +104,7 @@
 									myFriends[index].friends = response.data;
 							 		completions++; 															
 						 			var percentComplete = (completions/numFriends)*100;
-									loadDiv.innerHTML ="Loading: " + percentComplete.toFixed(0)+"% Complete";
+									loadDiv.innerHTML ="Loading: " + percentComplete.toFixed(0) + "% Complete";
 						 			if (completions == myFriends.length) {
 						 				loadDiv.innerHTML = "Loading Complete. Analyzing friend network."
 						 				var result = analyzeData();
@@ -125,8 +125,7 @@
 	}
 
   function updatePercentAnalyzed(val) {
-	  analysisDiv.innerHTML = "Analyzing: "
-		  						+ val.toFixed(0) + "% Complete";
+	  analysisDiv.innerHTML = "Analyzing: " + val.toFixed(0) + "% Complete";
   }
 	
 	
@@ -151,7 +150,7 @@
 			var containsPairs = 0;
 			var i = 0;
 			var j = 0;
-			var ro = new RepeatingOperation(function() {			 
+			var ro = new RepeatingOperation(function() { 
 				var percentComplete = ((i + (j / myFriends[i].friends.length)) / myFriends.length) * 100;
 				updatePercentAnalyzed(percentComplete);
 				if (myFriends[i].id < myFriends[i].friends[j].id) { //only want to do it once
@@ -170,12 +169,12 @@
 				}
 				else if (++i < myFriends.length) {
 					j = 0;
-					while (i < myFriends.length && myFriends[i].friends.length ==0) {
+					while (i < myFriends.length && myFriends[i].friends.length == 0) {
 						i++;
 					}
 					if (i<myFriends.length) ro.step();
 					else {
-			updatePercentAnalyzed((i/myFriends.length) * 100);
+			updatePercentAnalyzed((i/myFriends.length)*100);
 			printResults();
 		  }
 				}					
@@ -184,10 +183,10 @@
 			printResults();
 		}	
 			},100);
-			while (i < myFriends.length && myFriends[i].friends.length ==0) {
+			while (i < myFriends.length && myFriends[i].friends.length == 0) {
 				i++;
 			}
-			if (i>=myFriends.length) alert ("No possibilities for analysis. Exiting.");
+			if (i >= myFriends.length) alert ("No possibilities for analysis. Exiting.");
 			else ro.step();	 	 
 		}		
 		
