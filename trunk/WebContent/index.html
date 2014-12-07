@@ -170,7 +170,7 @@
 ﻿  ﻿  ﻿  ﻿  }
 ﻿  ﻿  ﻿  ﻿  else if (++i < myFriends.length) {
 ﻿  ﻿  ﻿  ﻿  ﻿  j = 0;
-﻿  ﻿  ﻿  ﻿  ﻿  while (myFriends[i].friends.length ==0 && i < myFriends.length) {
+﻿  ﻿  ﻿  ﻿  ﻿  while (i < myFriends.length && myFriends[i].friends.length ==0) {
 ﻿  ﻿  ﻿  ﻿  ﻿  ﻿  i++;
 ﻿  ﻿  ﻿  ﻿  ﻿  }
 ﻿  ﻿  ﻿  ﻿  ﻿  if (i<myFriends.length) ro.step();
@@ -184,7 +184,7 @@
 			printResults();
 		}	
 ﻿  ﻿  ﻿  },100);
-﻿  ﻿  ﻿  while (myFriends[i].friends.length ==0 && i < myFriends.length) {
+﻿  ﻿  ﻿  while (i < myFriends.length && myFriends[i].friends.length ==0) {
 ﻿  ﻿  ﻿  ﻿  i++;
 ﻿  ﻿  ﻿  }
 ﻿  ﻿  ﻿  if (i>=myFriends.length) alert ("No possibilities for analysis. Exiting.");
