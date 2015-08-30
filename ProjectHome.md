@@ -1,0 +1,1 @@
+This simple Facebook app calculates a metric based on simple user data to determine whether there are surprising relationships within his/her friend network (essentially friends from two different clusters who know each other). Can be accessed on FB at https://apps.facebook.com/smallworldafterall/
